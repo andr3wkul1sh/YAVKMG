@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/jsoup-1.7.2.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/jsoup-1.7.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/jsoup-1.7.2-sources.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/commons-codec-1.7.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/cssparser-0.9.8.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/htmlunit-2.11.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/htmlunit-core-js-2.11.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/httpclient-4.2.2.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/httpcore-4.2.2.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/httpmime-4.2.2.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/jetty-http-8.1.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/jetty-io-8.1.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/jetty-util-8.1.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/jetty-websocket-8.1.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/nekohtml-1.9.17.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/sac-1.3.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/serializer-2.7.1.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/xalan-2.7.1.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/xercesImpl-2.10.0.jar"/>
+	<classpathentry kind="lib" path="E:/__workeeee/eclipse_projects/vkMusicScraping/lib/xml-apis-1.4.01.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
