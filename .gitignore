@@ -1,0 +1,8 @@
+*.cache
+*.pyc
+*.db
+
+.settings/**/*
+.settings/*
+bin/**/*
+bin/*
