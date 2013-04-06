@@ -24,6 +24,8 @@ public class MainFrame extends JFrame{
     private JButton parseButton;
     private JTextField url;
     private JTextArea log;
+    private JPanel downloadLinksPanel;
+    private ParsedList parsedList;
 
     public MainFrame() {
 		initComponents();
@@ -37,6 +39,9 @@ public class MainFrame extends JFrame{
 		GridBagConstraints c = new GridBagConstraints();
 
         url = new JTextField();
+        TextPrompt urlTextPrompt = new TextPrompt("Input URL or search phrase", url, TextPrompt.Show.ALWAYS);
+        urlTextPrompt.changeAlpha(128);
+        url.setName("test");
 		c.weightx = 0.8;
 		c.weighty = 0;
 		c.gridx = 0;
@@ -53,21 +58,80 @@ public class MainFrame extends JFrame{
         parseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parse();
+                //
+                parsedList = new ParsedList();
+                //ParsedListElement element = new ParsedListElement("name", "song", "URL");
+                //parsedList.addElement(element);
+                new Thread() {
+                    @Override public void run () {
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override public void run() {
+                                parse();
+                                makeLinks();
+                                downloadLinksPanel.revalidate();
+                            }
+                        });
+                    }
+                }.start();
             }
         });
 		add(parseButton,c);
 
 		c.gridx = 0;
-		c.gridy = 1;
+		c.gridy = 2;
 		c.weightx = 1;
-		c.weighty = 1;
+		c.weighty = 0.3;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.BOTH;
         log = new JTextArea();
         JScrollPane scroll = new JScrollPane(log);
 		add(scroll,c);
+
+        downloadLinksPanel = new JPanel();
+        c.gridx = 0;
+        c.gridy = 1;
+        c.weightx = 1;
+        c.weighty = 0.7;
+        c.gridwidth = 2;
+        c.fill = GridBagConstraints.BOTH;
+        JScrollPane scrollPanel = new JScrollPane(downloadLinksPanel);
+        add(scrollPanel,c);
 	}
+
+    public void makeLinks() {
+        downloadLinksPanel.removeAll();
+        downloadLinksPanel.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+
+        for (int i = 0; i < parsedList.size(); i++) {
+            ParsedListElement element = parsedList.getElement(i);
+            JCheckBox flag = new JCheckBox("", element.isDownloadFlag());
+            c.weightx = 0.2;
+            c.weighty = 0;
+            c.gridx = 0;
+            c.gridy = i;
+            downloadLinksPanel.add(flag,c);
+
+            JLabel name = new JLabel();
+            name.setText(element.getAuthor() + " - " + element.getSong());
+            c.weightx = 0.6;
+            c.weighty = 0;
+            c.gridx = 1;
+            c.gridy = i;
+            c.fill = GridBagConstraints.HORIZONTAL;
+            downloadLinksPanel.add(name,c);
+
+            JLabel download = new JLabel();
+            download.setText("Download");
+            c.weightx = 0.2;
+            c.weighty = 0;
+            c.gridx = 2;
+            c.gridy = i;
+            c.fill = GridBagConstraints.HORIZONTAL;
+            downloadLinksPanel.add(download,c);
+
+        }
+    }
 
     private void parse() {
         try {
@@ -97,16 +161,15 @@ public class MainFrame extends JFrame{
                     int urlStartPos = domy.asXml().indexOf("http://");
                     int urlEndPos = domy.asXml().indexOf(".mp3,");
                     String urlMp3 = domy.asXml().substring(urlStartPos, urlEndPos + 4);
-                    saveSong(urlMp3, songAuthor, songName);
-                    Thread.sleep(4000);
+                    //saveSong(urlMp3, songAuthor, songName);
+                    //Thread.sleep(4000);
+                    ParsedListElement element = new ParsedListElement(songAuthor, songName, urlMp3);
+                    parsedList.addElement(element);
                 }
 
             }
             webClient.closeAllWindows();
         } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (InterruptedException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
     }
