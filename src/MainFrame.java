@@ -12,6 +12,8 @@ import java.net.URL;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -21,7 +23,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 
-public class MainFrame extends JFrame{
+public class MainFrame extends JFrame {
 
     private JButton parseButton;
     private JTextField saveTo;
@@ -31,40 +33,42 @@ public class MainFrame extends JFrame{
     private ParsedList parsedList;
 
     public MainFrame() {
-		initComponents();
-	}
+        initComponents();
+    }
 
-	private void initComponents() {
-		setSize(new Dimension(500, 300));
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		setLocationRelativeTo(null);
-		setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+    private void initComponents() {
+        setSize(new Dimension(500, 300));
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
 
         url = new JTextField();
         TextPrompt urlTextPrompt = new TextPrompt("Input URL or search phrase", url, TextPrompt.Show.ALWAYS);
         urlTextPrompt.changeAlpha(128);
-		c.gridx = 0;
-		c.gridy = 0;
+        c.gridx = 0;
+        c.gridy = 0;
         c.weightx = 0.8;
         c.weighty = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		add(url,c);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        add(url, c);
 
-		c.gridx = 1;
+        c.gridx = 1;
         c.gridy = 0;
-		c.weightx = 0.2;
-		c.weighty = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.2;
+        c.weighty = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
         parseButton = new JButton("Get");
         parseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parsedList = new ParsedList();
                 new Thread() {
-                    @Override public void run () {
-                        SwingUtilities.invokeLater(new Runnable(){
-                            @Override public void run() {
+                    @Override
+                    public void run() {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
                                 parse();
                                 makeLinks();
                                 downloadLinksPanel.revalidate();
@@ -74,7 +78,7 @@ public class MainFrame extends JFrame{
                 }.start();
             }
         });
-		add(parseButton,c);
+        add(parseButton, c);
 
         saveTo = new JTextField();
         TextPrompt saveToTextPrompt = new TextPrompt("Input path to save", saveTo, TextPrompt.Show.ALWAYS);
@@ -92,28 +96,35 @@ public class MainFrame extends JFrame{
                 }
             }
 
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {
+            }
+
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            public void mouseExited(MouseEvent e) {
+            }
         });
-         c.gridx = 0;
+        c.gridx = 0;
         c.gridy = 2;
         c.weightx = 1;
         c.weighty = 0;
         c.gridwidth = 2;
         c.fill = GridBagConstraints.HORIZONTAL;
-        add(saveTo,c);
+        add(saveTo, c);
 
-		c.gridx = 0;
-		c.gridy = 3;
-		c.weightx = 1;
-		c.weighty = 0.3;
-		c.gridwidth = 2;
-		c.fill = GridBagConstraints.BOTH;
+        c.gridx = 0;
+        c.gridy = 3;
+        c.weightx = 1;
+        c.weighty = 0.3;
+        c.gridwidth = 2;
+        c.fill = GridBagConstraints.BOTH;
         log = new JTextArea();
         JScrollPane scroll = new JScrollPane(log);
-		add(scroll,c);
+        add(scroll, c);
 
         downloadLinksPanel = new JPanel();
         c.gridx = 0;
@@ -123,8 +134,8 @@ public class MainFrame extends JFrame{
         c.gridwidth = 2;
         c.fill = GridBagConstraints.BOTH;
         JScrollPane scrollPanel = new JScrollPane(downloadLinksPanel);
-        add(scrollPanel,c);
-	}
+        add(scrollPanel, c);
+    }
 
     public void makeLinks() {
         downloadLinksPanel.removeAll();
@@ -133,7 +144,15 @@ public class MainFrame extends JFrame{
 
         for (int i = 0; i < parsedList.size(); i++) {
             final ParsedListElement element = parsedList.getElement(i);
-            JCheckBox flag = new JCheckBox("", element.isDownloadFlag());
+            final JCheckBox flag = new JCheckBox("", element.isDownloadFlag());
+            flag.setName(Integer.toString(i));
+            flag.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    ParsedListElement element = parsedList.getElement(Integer.parseInt(flag.getName()));
+                    element.setDownloadFlag(flag.isSelected());
+                }
+            });
             c.gridx = 0;
             c.gridy = i;
             c.weightx = 0.2;
@@ -187,9 +206,50 @@ public class MainFrame extends JFrame{
             c.gridx = 2;
             c.gridy = i;
             c.fill = GridBagConstraints.HORIZONTAL;
-            downloadLinksPanel.add(download,c);
+            downloadLinksPanel.add(download, c);
 
         }
+        final JLabel downloadSelected = new JLabel();
+        downloadSelected.setText("Download selected");
+        downloadSelected.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                for (int i = 0; i < parsedList.size(); i++) {
+                    ParsedListElement element = parsedList.getElement(i);
+                    if (element.isDownloadFlag()) {
+                        try {
+                            saveSong(element.getURL(), element.getAuthor(), element.getSong());
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                downloadSelected.setForeground(Color.red);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                downloadSelected.setForeground(Color.black);
+            }
+        });
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridx = 0;
+        c.gridy = parsedList.size();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        downloadLinksPanel.add(downloadSelected, c);
     }
 
     private void parse() {
@@ -209,9 +269,9 @@ public class MainFrame extends JFrame{
             List<DomElement> inputs = page.getElementsByTagName("input");
             for (DomElement domy : inputs) {
                 if (domy.getAttribute("id").startsWith("audio")) {
-                    String songName="", songAuthor="";
+                    String songName = "", songAuthor = "";
                     String id = domy.getAttribute("id").substring(10, domy.getAttribute("id").length());
-                    HtmlDivision divy = page.getHtmlElementById("audio"+ id);
+                    HtmlDivision divy = page.getHtmlElementById("audio" + id);
                     List<HtmlElement> spans = divy.getHtmlElementsByTagName("span");
                     for (HtmlElement spany : spans) {
                         if (spany.getAttribute("id").startsWith("title")) {
@@ -224,12 +284,9 @@ public class MainFrame extends JFrame{
                             songAuthor = aTag.getTextContent();
                         }
                     }
-                    //log.setText(log.getText() + songAuthor + " # " + songName + "\n");
                     int urlStartPos = domy.asXml().indexOf("http://");
                     int urlEndPos = domy.asXml().indexOf(".mp3,");
                     String urlMp3 = domy.asXml().substring(urlStartPos, urlEndPos + 4);
-                    //saveSong(urlMp3, songAuthor, songName);
-                    //Thread.sleep(4000);
                     ParsedListElement element = new ParsedListElement(songAuthor, songName, urlMp3);
                     parsedList.addElement(element);
                 }
@@ -257,18 +314,17 @@ public class MainFrame extends JFrame{
         int totalBytesRead = 0;
         int bytesRead;
         log.setText(log.getText() + "Reading file 150KB blocks at a time.\n");
-  
-        while ((bytesRead = reader.read(buffer)) > 0)
-        { 
-           writer.write(buffer, 0, bytesRead);
-           buffer = new byte[153600];
-           totalBytesRead += bytesRead;
+
+        while ((bytesRead = reader.read(buffer)) > 0) {
+            writer.write(buffer, 0, bytesRead);
+            buffer = new byte[153600];
+            totalBytesRead += bytesRead;
         }
-  
+
         long endTime = System.currentTimeMillis();
 
         log.setText(log.getText() + "Done. " + totalBytesRead + " bytes read (" + (endTime - startTime) + " millseconds).\n");
         writer.close();
         reader.close();
-	}
+    }
 }
