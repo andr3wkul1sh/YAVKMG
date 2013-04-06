@@ -63,19 +63,37 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parsedList = new ParsedList();
-                new Thread() {
-                    @Override
+
+
+
+                final Runnable pennyStockPicker = new Runnable() {
                     public void run() {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                parse();
-                                makeLinks();
-                                downloadLinksPanel.revalidate();
-                            }
-                        });
+                        JLabel loadingL;
+                        ImageIcon loading = new ImageIcon("img/loading.gif");
+                        loadingL = new JLabel("Loading", loading, JLabel.CENTER);
+                        loading.setImageObserver(loadingL);
+                        downloadLinksPanel.setLayout(new BorderLayout());
+                        downloadLinksPanel.add(loadingL, BorderLayout.CENTER);
+                        downloadLinksPanel.revalidate();
                     }
-                }.start();
+                };
+
+                Thread stockPicker = new Thread() {
+                    public void run() {
+                        try {
+                            SwingUtilities.invokeAndWait(pennyStockPicker);
+                            parse();
+                            downloadLinksPanel.removeAll();
+                            downloadLinksPanel.revalidate();
+                            makeLinks();
+                            downloadLinksPanel.revalidate();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                };
+                stockPicker.start();
             }
         });
         add(parseButton, c);
@@ -122,7 +140,7 @@ public class MainFrame extends JFrame {
         c.weighty = 0.3;
         c.gridwidth = 2;
         c.fill = GridBagConstraints.BOTH;
-        log = new JTextArea();
+        log = new JTextArea("http://vk.com/wall-25993158_3791");
         JScrollPane scroll = new JScrollPane(log);
         add(scroll, c);
 
@@ -175,12 +193,39 @@ public class MainFrame extends JFrame {
             download.addMouseListener(new MouseListener() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    ParsedListElement element = parsedList.getElement(Integer.parseInt(download.getName()));
-                    try {
-                        saveSong(element.getURL(), element.getAuthor(), element.getSong());
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
+                    final ParsedListElement element = parsedList.getElement(Integer.parseInt(download.getName()));
+                    final JFrame[] loadingFrame = new JFrame[1];
+                    final Runnable pennyStockPicker = new Runnable() {
+                        public void run() {
+                            loadingFrame[0] = new JFrame();
+                            loadingFrame[0].setSize(new Dimension(MainFrame.this.getWidth(), MainFrame.this.getHeight()));
+                            loadingFrame[0].setLocationRelativeTo(MainFrame.this);
+                            loadingFrame[0].setUndecorated(true);
+                            //com.sun.awt.AWTUtilities.setWindowOpacity(loadingFrame[0], .2f);
+                            JLabel loadingL;
+                            ImageIcon loading = new ImageIcon("img/loading.gif");
+                            loadingL = new JLabel("", loading, JLabel.CENTER);
+                            loading.setImageObserver(loadingL);
+                            loadingFrame[0].setLayout(new BorderLayout());
+                            loadingFrame[0].add(loadingL, BorderLayout.CENTER);
+                            loadingFrame[0].revalidate();
+                            loadingFrame[0].setVisible(true);
+                        }
+                    };
+
+                    Thread stockPicker = new Thread() {
+                        public void run() {
+                            try {
+                                SwingUtilities.invokeAndWait(pennyStockPicker);
+                                saveSong(element.getURL(), element.getAuthor(), element.getSong());
+                                loadingFrame[0].dispose();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    };
+                    stockPicker.start();
                 }
 
                 @Override
@@ -198,7 +243,7 @@ public class MainFrame extends JFrame {
 
                 @Override
                 public void mouseExited(MouseEvent e) {
-                    download.setForeground(Color.black);
+                    download.setForeground(new Color(51, 51, 51));
                 }
             });
             c.weightx = 0.2;
@@ -214,16 +259,46 @@ public class MainFrame extends JFrame {
         downloadSelected.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                for (int i = 0; i < parsedList.size(); i++) {
-                    ParsedListElement element = parsedList.getElement(i);
-                    if (element.isDownloadFlag()) {
-                        try {
-                            saveSong(element.getURL(), element.getAuthor(), element.getSong());
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
+                final JFrame[] loadingFrame = new JFrame[1];
+                final Runnable pennyStockPicker = new Runnable() {
+                    public void run() {
+                        loadingFrame[0] = new JFrame();
+                        loadingFrame[0].setSize(new Dimension(MainFrame.this.getWidth(), MainFrame.this.getHeight()));
+                        loadingFrame[0].setLocationRelativeTo(MainFrame.this);
+                        loadingFrame[0].setUndecorated(true);
+                        //com.sun.awt.AWTUtilities.setWindowOpacity(loadingFrame[0], .2f);
+                        JLabel loadingL;
+                        ImageIcon loading = new ImageIcon("img/loading.gif");
+                        loadingL = new JLabel("", loading, JLabel.CENTER);
+                        loading.setImageObserver(loadingL);
+                        loadingFrame[0].setLayout(new BorderLayout());
+                        loadingFrame[0].add(loadingL, BorderLayout.CENTER);
+                        loadingFrame[0].revalidate();
+                        loadingFrame[0].setVisible(true);
                     }
-                }
+                };
+                Thread stockPicker = new Thread() {
+                    public void run() {
+                        try {
+                            SwingUtilities.invokeAndWait(pennyStockPicker);
+                            for (int i = 0; i < parsedList.size(); i++) {
+                                ParsedListElement element = parsedList.getElement(i);
+                                if (element.isDownloadFlag()) {
+                                    try {
+                                        saveSong(element.getURL(), element.getAuthor(), element.getSong());
+                                    } catch (IOException e1) {
+                                        e1.printStackTrace();
+                                    }
+                                }
+                            }
+                            loadingFrame[0].dispose();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                };
+                stockPicker.start();
             }
 
             @Override
@@ -241,7 +316,7 @@ public class MainFrame extends JFrame {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                downloadSelected.setForeground(Color.black);
+                downloadSelected.setForeground(new Color(51, 51, 51));
             }
         });
         c.weightx = 1;
@@ -249,6 +324,7 @@ public class MainFrame extends JFrame {
         c.gridx = 0;
         c.gridy = parsedList.size();
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 3;
         downloadLinksPanel.add(downloadSelected, c);
     }
 
